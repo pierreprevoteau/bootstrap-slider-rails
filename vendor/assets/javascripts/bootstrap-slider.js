@@ -1,6 +1,3 @@
-/*! =======================================================
-                      VERSION  9.7.3              
-========================================================= */
 "use strict";
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -1527,13 +1524,8 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
 				}
 
 				var val = this._state.value[handleIdx] + dir * this.options.step;
-				var percentage = val / this.options.max * 100;
-				this._state.keyCtrl = handleIdx;
 				if (this.options.range) {
-					this._adjustPercentageForRangeSliders(percentage);
-					var val1 = !this._state.keyCtrl ? val : this._state.value[0];
-					var val2 = this._state.keyCtrl ? val : this._state.value[1];
-					val = [val1, val2];
+					val = [!handleIdx ? val : this._state.value[0], handleIdx ? val : this._state.value[1]];
 				}
 
 				this._trigger('slideStart', val);
@@ -1545,7 +1537,6 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
 				this._layout();
 
 				this._pauseEvent(ev);
-				delete this._state.keyCtrl;
 
 				return false;
 			},
@@ -1606,14 +1597,6 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
 					} else if (this._state.dragged === 1 && this._applyToFixedAndParseFloat(this._state.percentage[0], precision) > percentageWithAdjustedPrecision) {
 						this._state.percentage[1] = this._state.percentage[0];
 						this._state.dragged = 0;
-					} else if (this._state.keyCtrl === 0 && this._state.value[1] / this.options.max * 100 < percentage) {
-						this._state.percentage[0] = this._state.percentage[1];
-						this._state.keyCtrl = 1;
-						this.handle2.focus();
-					} else if (this._state.keyCtrl === 1 && this._state.value[0] / this.options.max * 100 > percentage) {
-						this._state.percentage[1] = this._state.percentage[0];
-						this._state.keyCtrl = 0;
-						this.handle1.focus();
 					}
 				}
 			},
@@ -1878,25 +1861,28 @@ var windowIsDefined = (typeof window === "undefined" ? "undefined" : _typeof(win
   		Attach to global namespace
   	*********************************/
 		if ($ && $.fn) {
-			var autoRegisterNamespace = void 0;
+			(function () {
+				var autoRegisterNamespace = void 0;
 
-			if (!$.fn.slider) {
-				$.bridget(NAMESPACE_MAIN, Slider);
-				autoRegisterNamespace = NAMESPACE_MAIN;
-			} else {
-				if (windowIsDefined) {
-					window.console.warn("bootstrap-slider.js - WARNING: $.fn.slider namespace is already bound. Use the $.fn.bootstrapSlider namespace instead.");
+				if (!$.fn.slider) {
+					$.bridget(NAMESPACE_MAIN, Slider);
+					autoRegisterNamespace = NAMESPACE_MAIN;
+				} else {
+					if (windowIsDefined) {
+						window.console.warn("bootstrap-slider.js - WARNING: $.fn.slider namespace is already bound. Use the $.fn.bootstrapSlider namespace instead.");
+					}
+					autoRegisterNamespace = NAMESPACE_ALTERNATE;
 				}
-				autoRegisterNamespace = NAMESPACE_ALTERNATE;
-			}
-			$.bridget(NAMESPACE_ALTERNATE, Slider);
+				$.bridget(NAMESPACE_ALTERNATE, Slider);
 
-			// Auto-Register data-provide="slider" Elements
-			$(function () {
-				$("input[data-provide=slider]")[autoRegisterNamespace]();
-			});
+				// Auto-Register data-provide="slider" Elements
+				$(function () {
+					$("input[data-provide=slider]")[autoRegisterNamespace]();
+				});
+			})();
 		}
 	})($);
 
 	return Slider;
 });
+
